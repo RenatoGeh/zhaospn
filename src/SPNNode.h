@@ -29,8 +29,11 @@ namespace SPN {
     };
 
     enum class VarNodeType {
-        BINNODE, // Binary leaf distribution
-        NORMALNODE  // Normal leaf distribution
+        BINNODE, // Binary (Literal) leaf distribution
+        NORMALNODE,  // Normal leaf distribution
+        TOPNODE, // Top leaf distribution
+        BOTNODE, // Bottom leaf distribution
+        BERNOULLINODE // Bernoulli leaf distribution
     };
 
     class SPNNode {
@@ -360,6 +363,82 @@ namespace SPN {
     private:
         // Value of the point taken by the binary random variable, either 0 or 1.
         double var_value_;
+    };
+
+    class TopNode : public VarNode {
+    public:
+        TopNode() = default;
+        virtual ~TopNode() = default;
+
+        TopNode(int id, int var_index) : VarNode(id, var_index) {}
+
+        VarNodeType distribution() const override { return VarNodeType::TOPNODE; }
+
+        std::string type_string() const override { return std::string("TopNode"); }
+
+        size_t num_param() const override { return 0; }
+
+        std::string string() const override { return std::string("T"); }
+
+        double prob(double) const override { return 1.0; }
+
+        double log_prob(double) const override { return 0.0; }
+
+        friend std::ostream &operator<<(std::ostream&, const TopNode&);
+        friend class SPNetwork;
+    };
+
+    class BotNode : public VarNode {
+    public:
+        BotNode() = default;
+        virtual ~BotNode() = default;
+
+        BotNode(int id, int var_index) : VarNode(id, var_index) {}
+
+        VarNodeType distribution() const override { return VarNodeType::BOTNODE; }
+
+        std::string type_string() const override { return std::string("BotNode"); }
+
+        size_t num_param() const override { return 0; }
+
+        std::string string() const override { return std::string("F"); }
+
+        double prob(double) const override { return 0.0; }
+
+        double log_prob(double) const override { return -std::numeric_limits<double>::infinity(); }
+
+        friend std::ostream &operator<<(std::ostream&, const BotNode&);
+        friend class SPNetwork;
+    };
+
+    class BernoulliNode : public VarNode {
+    public:
+        BernoulliNode() = default;
+        virtual ~BernoulliNode() = default;
+
+        BernoulliNode(int id, int var_index, double p) : VarNode(id, var_index), p_(p) {}
+
+        VarNodeType distribution() const override { return VarNodeType::BERNOULLINODE; }
+
+        std::string type_string() const override { return std::string("BernoulliNode"); }
+
+        size_t num_param() const override { return 1; }
+
+        std::string string() const override;
+
+        inline double var_p() const { return p_; }
+
+        inline void set_p(double p) { p_ = p; }
+
+        double prob(double x) const override { return x == 0.0 ? p_ : 1.0 - p_; }
+
+        double log_prob(double x) const override { return x == 0.0 ? log(p_) : 1.0 - log(p_); }
+
+        friend std::ostream &operator<<(std::ostream&, const BernoulliNode&);
+        friend class SPNetwork;
+
+    private:
+        double p_;
     };
 
     class NormalNode : public VarNode {

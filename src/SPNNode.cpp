@@ -22,6 +22,21 @@ namespace SPN {
         return out;
     }
 
+    std::ostream &operator<<(std::ostream &out, const TopNode &node) {
+        out << node.string();
+        return out;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const BotNode &node) {
+        out << node.string();
+        return out;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const BernoulliNode &node) {
+        out << node.string();
+        return out;
+    }
+
     std::string SumNode::string() const {
         std::stringstream out;
         out << "sum,";
@@ -146,6 +161,26 @@ namespace SPN {
         out << type_string() << "], mean:[";
         out << var_mean() << "],variance:[";
         out << var_var() << "]";
+        return out.str();
+    }
+
+    std::string BernoulliNode::string() const {
+        std::stringstream out;
+        out << "variable,id:" << id_ << ",children:[],parents:[";
+        size_t num_parents = parents_.size();
+        if (num_parents > 0) {
+            for (size_t i = 0; i < num_parents - 1; ++i)
+                out << parents_[i]->id() << ",";
+            out << children_[num_parents - 1]->id();
+        }
+        out << "],scope:[";
+        size_t size_scope = scope_.size();
+        if (size_scope > 0) {
+            for (size_t i = 0; i < size_scope - 1; ++i)
+                out << scope_[i] << ",";
+            out << scope_[size_scope - 1];
+        }
+        out << "],distribution,[p:[" << p_ << "]]";
         return out.str();
     }
 }
