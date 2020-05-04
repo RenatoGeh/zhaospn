@@ -1,3 +1,6 @@
+#ifndef SPN_EM_UTILS_H
+#define SPN_EM_UTILS_H
+
 #include "SPNetwork.h"
 
 #include <string>
@@ -17,3 +20,5 @@ namespace SPN {
         std::vector<std::vector<double>> load_data(std::string);
     }
 }
+
+#endif
