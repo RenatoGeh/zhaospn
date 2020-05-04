@@ -426,7 +426,7 @@ namespace SPN {
 
         std::string string() const override;
 
-        inline double var_p() const { return p_; }
+        inline double p() const { return p_; }
 
         inline void set_p(double p) { p_ = p; }
 
