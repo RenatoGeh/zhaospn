@@ -1,5 +1,8 @@
 #include "../src/SPNNode.h"
 
+#include <string>
+#include <vector>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -42,18 +45,18 @@ void bind_spn_node(py::module &m) {
     .def("num_parents", &SPNNode::num_parents, "Number of parents")
     .def("num_children", &SPNNode::num_children, "Number of children")
     .def("scope", &SPNNode::scope, "Scope of node")
-    .def("children", &SPNNode::children, "Children of node")
-    .def("parents", &SPNNode::parents, "Parents of node")
+    .def("children", &SPNNode::children, py::return_value_policy::reference, "Children of node")
+    .def("parents", &SPNNode::parents, py::return_value_policy::reference, "Parents of node")
     .def("fr", (double (SPNNode::*)(void) const) &SPNNode::fr, "Get forward pass inference")
     .def("fr", (void (SPNNode::*)(double)) &SPNNode::fr, "Set forward pass inference")
     .def("dr", (double (SPNNode::*)(void) const) &SPNNode::dr, "Get differential")
     .def("dr", (void (SPNNode::*)(double)) &SPNNode::dr, "Set differential")
-    .def("add_child", &SPNNode::add_child, "Adds a child to node")
-    .def("add_parent", &SPNNode::add_parent, "Adds a parent to node")
-    .def("add_children", &SPNNode::add_children, "Adds children to node")
-    .def("add_parents", &SPNNode::add_parents, "Adds parents to node")
-    .def("set_children", &SPNNode::set_children, "Sets the children of node")
-    .def("set_parents", &SPNNode::set_parents, "Sets the parents of node")
+    .def("add_child", &SPNNode::add_child, py::keep_alive<1, 2>(), "Adds a child to node")
+    .def("add_parent", &SPNNode::add_parent, py::keep_alive<1, 2>(), "Adds a parent to node")
+    .def("add_children", &SPNNode::add_children, py::keep_alive<1, 2>(), "Adds children to node")
+    .def("add_parents", &SPNNode::add_parents, py::keep_alive<1, 2>(), "Adds parents to node")
+    .def("set_children", &SPNNode::set_children, py::keep_alive<1, 2>(), "Sets the children of node")
+    .def("set_parents", &SPNNode::set_parents, py::keep_alive<1, 2>(), "Sets the parents of node")
     .def("remove_child", &SPNNode::remove_child, "Removes child from node")
     .def("remove_parent", &SPNNode::remove_parent, "Removes parent from node")
     .def("add_to_scope", &SPNNode::add_to_scope, "Adds variable to scope")

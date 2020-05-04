@@ -1,5 +1,7 @@
 #include "../src/SPNetwork.h"
 
+#include <vector>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -11,7 +13,8 @@ namespace py = pybind11;
 
 void bind_net_spnetwork(py::module &m) {
   py::class_<SPNetwork>(m, "SPNetwork", "A sum-product network class with basic network functions")
-    .def(py::init<SPNNode*>())
+    .def(py::init<SPNNode*>(), py::return_value_policy::reference, py::keep_alive<1, 2>(),
+        "Constructs a sum-product network given a SPN root node")
     .def("size", &SPNetwork::size, "Returns network size")
     .def("height", &SPNetwork::height, "Returns network height")
     .def("num_nodes", &SPNetwork::num_nodes, "Returns number of nodes in network")
