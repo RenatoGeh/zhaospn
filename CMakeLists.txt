@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(zhaospn)
 
 # Compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 ## Executable for structure learning algorithms
 set(SOURCE_FILES_STRUCTURE main.cpp src/SPNNode.cpp src/SPNNode.h src/utils.h src/utils.cpp
