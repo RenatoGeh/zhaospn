@@ -4,6 +4,8 @@
 #include "bindings/network.h"
 #include "bindings/utils.h"
 #include "bindings/batch.h"
+#include "bindings/online.h"
+#include "bindings/stream.h"
 
 PYBIND11_MODULE(zhaospn, m) {
   /* SPN submodule */
@@ -42,4 +44,28 @@ PYBIND11_MODULE(zhaospn, m) {
   bind_batch_lbfgs(batch);
   bind_batch_expgd(batch);
   bind_batch_sma(batch);
+
+  /* Online submodule */
+  auto online = m.def_submodule("online", "Online learning submodule");
+
+  /* Bindings for online learning methods */
+  bind_online_base(online);
+  bind_online_projgd(online);
+  bind_online_expgd(online);
+  bind_online_sma(online);
+  bind_online_em(online);
+  bind_online_cvb(online);
+  bind_online_adf(online);
+  bind_online_bmm(online);
+
+
+  /* Streaming submodule */
+  auto streaming = m.def_submodule("stream", "Streaming learning submodule");
+
+  /* Bindings for stream learning methods */
+  bind_stream_base(streaming);
+  bind_stream_projgd(streaming);
+  bind_stream_expgd(streaming);
+  bind_stream_sma(streaming);
+  bind_stream_em(streaming);
 }
