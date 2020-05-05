@@ -1,9 +1,11 @@
 #include "../src/SPNetwork.h"
 
+#include <iostream>
 #include <vector>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 
 #include "network.h"
 
@@ -14,7 +16,7 @@ namespace py = pybind11;
 void bind_net_spnetwork(py::module &m) {
   py::class_<SPNetwork>(m, "SPNetwork", "A sum-product network class with basic network functions")
     .def(py::init<SPNNode*>(), py::return_value_policy::reference, py::keep_alive<1, 2>(),
-        "Constructs a sum-product network given a SPN root node")
+        py::arg("root"), "Constructs a sum-product network given a SPN root node")
     .def("size", &SPNetwork::size, "Returns network size")
     .def("height", &SPNetwork::height, "Returns network height")
     .def("num_nodes", &SPNetwork::num_nodes, "Returns number of nodes in network")
@@ -47,9 +49,9 @@ void bind_net_spnetwork(py::module &m) {
     .def("init", &SPNetwork::init, "Initialize the SPN, do the following tasks:\n1. Remove "
         "connected sum nodes and product nodes\n2. Compute statistics about the network topology\n"
         "3. Build the bottom-up and top-down visiting order of nodes in SPN")
-    .def("set_random_params", &SPNetwork::set_random_params, "Drop the existing model parameters "
-        "and initialize using random seed")
+    .def("set_random_params", &SPNetwork::set_random_params, py::arg("seed"), "Drop the existing "
+        "model parameters and initialize using random seed")
     .def("weight_projection", &SPNetwork::weight_projection, py::arg("smooth") = 0.0, "Project "
         "each nonlocally normalized SPN into an SPN with locally normalized weights")
-    .def("print", &SPNetwork::print, "Output the network");
+    .def("print", (void (SPNetwork::*)(void)) &SPNetwork::print, "Output the network to stdout");
 }

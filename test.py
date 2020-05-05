@@ -60,6 +60,7 @@ def main():
         l.fit(D[0], D[1], S, 4, True)
       else:
         for x in D[0]: l.fit(x, S, True)
+      S.print()
       print('---')
 
 if __name__ == '__main__':

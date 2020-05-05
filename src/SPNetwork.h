@@ -95,6 +95,9 @@ namespace SPN {
         // Output the network
         void print(std::ostream &);
 
+        // Output to stdout
+        void print(void) { print(std::cout); }
+
     private:
         // Delegate function call
         template<typename Callable>

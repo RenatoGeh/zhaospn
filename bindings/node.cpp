@@ -39,8 +39,9 @@ void bind_spn_node(py::module &m) {
   };
 
   py::class_<SPNNode, PySPNNode>(m, "SPNNode", "An SPN generic node")
-    .def(py::init<int>(), "Constructs a generic SPN node with given ID")
-    .def(py::init<int, const std::vector<int>&>(), "Constructs a generic SPN node with given ID and scope.")
+    .def(py::init<int>(), py::arg("id"), "Constructs a generic SPN node with given ID")
+    .def(py::init<int, const std::vector<int>&>(), py::arg("id"), py::arg("scope"), "Constructs a "
+        "generic SPN node with given ID and scope.")
     .def("id", &SPNNode::id, "Get SPN node ID")
     .def("num_parents", &SPNNode::num_parents, "Number of parents")
     .def("num_children", &SPNNode::num_children, "Number of children")
@@ -48,18 +49,18 @@ void bind_spn_node(py::module &m) {
     .def("children", &SPNNode::children, py::return_value_policy::reference, "Children of node")
     .def("parents", &SPNNode::parents, py::return_value_policy::reference, "Parents of node")
     .def("fr", (double (SPNNode::*)(void) const) &SPNNode::fr, "Get forward pass inference")
-    .def("fr", (void (SPNNode::*)(double)) &SPNNode::fr, "Set forward pass inference")
+    .def("fr", (void (SPNNode::*)(double)) &SPNNode::fr, py::arg("v"), "Set forward pass inference")
     .def("dr", (double (SPNNode::*)(void) const) &SPNNode::dr, "Get differential")
-    .def("dr", (void (SPNNode::*)(double)) &SPNNode::dr, "Set differential")
-    .def("add_child", &SPNNode::add_child, py::keep_alive<1, 2>(), "Adds a child to node")
-    .def("add_parent", &SPNNode::add_parent, py::keep_alive<1, 2>(), "Adds a parent to node")
-    .def("add_children", &SPNNode::add_children, py::keep_alive<1, 2>(), "Adds children to node")
-    .def("add_parents", &SPNNode::add_parents, py::keep_alive<1, 2>(), "Adds parents to node")
-    .def("set_children", &SPNNode::set_children, py::keep_alive<1, 2>(), "Sets the children of node")
-    .def("set_parents", &SPNNode::set_parents, py::keep_alive<1, 2>(), "Sets the parents of node")
-    .def("remove_child", &SPNNode::remove_child, "Removes child from node")
-    .def("remove_parent", &SPNNode::remove_parent, "Removes parent from node")
-    .def("add_to_scope", &SPNNode::add_to_scope, "Adds variable to scope")
+    .def("dr", (void (SPNNode::*)(double)) &SPNNode::dr, py::arg("v"), "Set differential")
+    .def("add_child", &SPNNode::add_child, py::arg("child"), py::keep_alive<1, 2>(), "Adds a child to node")
+    .def("add_parent", &SPNNode::add_parent, py::arg("parent"), py::keep_alive<1, 2>(), "Adds a parent to node")
+    .def("add_children", &SPNNode::add_children, py::arg("children"), py::keep_alive<1, 2>(), "Adds children to node")
+    .def("add_parents", &SPNNode::add_parents, py::arg("parents"), py::keep_alive<1, 2>(), "Adds parents to node")
+    .def("set_children", &SPNNode::set_children, py::arg("children"), py::keep_alive<1, 2>(), "Sets the children of node")
+    .def("set_parents", &SPNNode::set_parents, py::arg("parents"), py::keep_alive<1, 2>(), "Sets the parents of node")
+    .def("remove_child", &SPNNode::remove_child, py::arg("child"), "Removes child from node")
+    .def("remove_parent", &SPNNode::remove_parent, py::arg("parent"), "Removes parent from node")
+    .def("add_to_scope", &SPNNode::add_to_scope, py::arg("t"), "Adds variable to scope")
     .def("clear_scope", &SPNNode::clear_scope, "Clears node scope")
     .def("type", &SPNNode::type, "Node type")
     .def("type_string", &SPNNode::type_string, "Node type in string format")
@@ -77,14 +78,14 @@ void bind_spn_sum(py::module &m) {
   };
 
   py::class_<SumNode, SPNNode, PySumNode>(m, "SumNode", "An SPN sum node")
-    .def(py::init<int>(), "Constructs a sum node with given ID")
-    .def(py::init<int, const std::vector<int>&, const std::vector<double>&>(), "Constructs a sum "
-        "node with given scope and array of weights")
+    .def(py::init<int>(), py::arg("id"), "Constructs a sum node with given ID")
+    .def(py::init<int, const std::vector<int>&, const std::vector<double>&>(), py::arg("id"),
+        py::arg("scope"), py::arg("weights"), "Constructs a sum node with given scope and array of weights")
     .def("weights", &SumNode::weights, "Returns the array of weights")
-    .def("set_weights", &SumNode::set_weights, "Sets the weights of this sum node")
-    .def("set_weight", &SumNode::set_weight, "Sets a weight of this sum node")
-    .def("remove_weight", &SumNode::remove_weight, "Removes the given weight")
-    .def("add_weight", &SumNode::add_weight, "Adds a weight to this sum node");
+    .def("set_weights", &SumNode::set_weights, py::arg("weights"), "Sets the weights of this sum node")
+    .def("set_weight", &SumNode::set_weight, py::arg("index"), py::arg("w"), "Sets a weight of this sum node")
+    .def("remove_weight", &SumNode::remove_weight, py::arg("i"), "Removes the given weight")
+    .def("add_weight", &SumNode::add_weight, py::arg("w"), "Adds a weight to this sum node");
 }
 
 void bind_spn_prod(py::module &m) {
@@ -118,11 +119,12 @@ void bind_spn_var(py::module &m) {
   };
 
   py::class_<VarNode, SPNNode, PyVarNode>(m, "VarNode", "An SPN leaf node")
-    .def(py::init<int, int>(), "Constructs a leaf node with given ID and variable index")
+    .def(py::init<int, int>(), py::arg("id"), py::arg("var_index"), "Constructs a leaf node with "
+        "given ID and variable index")
     .def("var_index", &VarNode::var_index, "Returns variable index")
     .def("distribution", &VarNode::distribution, "Returns the type of distribution of this leaf")
-    .def("prob", &VarNode::prob, "Computes the probability density or mass")
-    .def("log_prob", &VarNode::log_prob, "Computes the log probability density or mass")
+    .def("prob", &VarNode::prob, py::arg("x"), "Computes the probability density or mass")
+    .def("log_prob", &VarNode::log_prob, py::arg("x"), "Computes the log probability density or mass")
     .def("num_param", &VarNode::num_param, "Returns the number of natural statistics of distribution");
 }
 
@@ -141,8 +143,9 @@ void bind_spn_bin(py::module &m) {
   };
 
   py::class_<BinNode, VarNode, PyBinNode>(m, "BinNode", "A binary/indicator/literal leaf node")
-    .def(py::init<int, int, double>(), "Constructs a binary/indicator/literal leaf node given ID, "
-        "variable index and the value the variable should take")
+    .def(py::init<int, int, double>(), py::arg("id"), py::arg("var_index"), py::arg("var_value"),
+        "Constructs a binary/indicator/literal leaf node given ID, variable index and the value "
+        "the variable should take")
     .def("var_value", &BinNode::var_value, "Returns the value the indicator function agrees with");
 }
 
@@ -161,7 +164,8 @@ void bind_spn_top(py::module &m) {
   };
 
   py::class_<TopNode, VarNode, PyTopNode>(m, "TopNode", "A top (always true) leaf node")
-    .def(py::init<int, int>(), "Constructs a top node given ID and variable index");
+    .def(py::init<int, int>(), py::arg("id"), py::arg("var_index"), "Constructs a top node given "
+        "ID and variable index");
 }
 
 void bind_spn_bot(py::module &m) {
@@ -179,7 +183,8 @@ void bind_spn_bot(py::module &m) {
   };
 
   py::class_<BotNode, VarNode, PyBotNode>(m, "BotNode", "A bot (always false) leaf node")
-    .def(py::init<int, int>(), "Constructs a bot node given ID and variable index");
+    .def(py::init<int, int>(), py::arg("id"), py::arg("var_index"), "Constructs a bot node given "
+        "ID and variable index");
 }
 
 void bind_spn_bernoulli(py::module &m) {
@@ -198,10 +203,10 @@ void bind_spn_bernoulli(py::module &m) {
 
   py::class_<BernoulliNode, VarNode, PyBernoulliNode>(m, "BernoulliNode", "A Bernoulli "
       "distribution leaf node")
-    .def(py::init<int, int, double>(), "Constructs a Bernoulli distribution leaf node given "
-        "ID, variable index and parameter p")
+    .def(py::init<int, int, double>(), py::arg("id"), py::arg("var_index"), py::arg("p"),
+        "Constructs a Bernoulli distribution leaf node given ID, variable index and parameter p")
     .def("p", &BernoulliNode::p, "Returns the parameter p of the underlying Bernoulli")
-    .def("set_p", &BernoulliNode::set_p, "Sets the parameter p of the underlying Bernoulli");
+    .def("set_p", &BernoulliNode::set_p, py::arg("p"), "Sets the parameter p of the underlying Bernoulli");
 }
 
 void bind_spn_normal(py::module &m) {
@@ -219,10 +224,11 @@ void bind_spn_normal(py::module &m) {
   };
 
   py::class_<NormalNode, VarNode, PyNormalNode>(m, "NormalNode", "A Gaussian distribution leaf node")
-    .def(py::init<int, int, double, double>(), "Constructs a Gaussian distribution leaf node given "
-        "ID, variable index, variable mean and variance")
+    .def(py::init<int, int, double, double>(), py::arg("id"), py::arg("var_index"),
+        py::arg("var_mean"), py::arg("var_var"), "Constructs a Gaussian distribution leaf node "
+        "given ID, variable index, variable mean and variance")
     .def("var_mean", &NormalNode::var_mean, "Returns the Gaussian mean")
     .def("var_var", &NormalNode::var_var, "Returns the Gaussian variance")
-    .def("set_var_mean", &NormalNode::set_var_mean, "Sets the Gaussian mean")
-    .def("set_var_var", &NormalNode::set_var_var, "Sets the Gaussian variance");
+    .def("set_var_mean", &NormalNode::set_var_mean, py::arg("var_mean"), "Sets the Gaussian mean")
+    .def("set_var_var", &NormalNode::set_var_var, py::arg("var_var"), "Sets the Gaussian variance");
 }
