@@ -1,8 +1,11 @@
+#include "../src/fmath.hpp"
+#include "../src/SPNetwork.h"
+#include "../src/BatchParamLearning.h"
+
+#include <vector>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
-#include "../src/fmath.hpp"
-#include "../src/BatchParamLearning.h"
 
 #include "batch.h"
 
@@ -27,7 +30,8 @@ void bind_batch_base(py::module &m) {
     .def(py::init<>(), "Constructs a batch parameter learning object")
     .def("fit", &BatchParamLearning::fit, py::arg("trains"), py::arg("valids"), py::arg("spn"),
           py::arg("verbose") = false, "Fit spn to given trains dataset and valids validation set")
-    .def("algo_name", &BatchParamLearning::algo_name, "Returns the name of the parameter learning algorithm");
+    .def("algo_name", &BatchParamLearning::algo_name, "Returns the name of the batch parameter "
+        "learning algorithm");
 }
 
 void bind_batch_em(pybind11::module &m) {
