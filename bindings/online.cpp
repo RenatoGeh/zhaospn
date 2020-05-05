@@ -24,7 +24,7 @@ void bind_online_base(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineParamLearning, PyOnlineParamLearning>(m, "OnlineParamLearning", "Abstract class "
+  py::class_<OnlineParamLearning, PyOnlineParamLearning>(m, "ParamLearning", "Abstract class "
       "for online parameter learning of SPNs")
     .def(py::init<>(), "Constructs an online parameter learning object")
     .def("fit", &OnlineParamLearning::fit, py::arg("trains"), py::arg("valids"), py::arg("spn"),
@@ -45,7 +45,7 @@ void bind_online_projgd(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineProjectedGD, OnlineParamLearning, PyOnlineProjectedGD>(m, "OnlineProjectedGD",
+  py::class_<OnlineProjectedGD, OnlineParamLearning, PyOnlineProjectedGD>(m, "ProjectedGD",
          "Projected gradient descent (PGD) online learner")
    .def(py::init<>(), "Constructs a PGD learner with default parameters")
    .def(py::init<double, double, double, double>(), py::arg("proj_eps") = 1e-2,
@@ -64,7 +64,7 @@ void bind_online_expgd(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineExpoGD, OnlineParamLearning, PyOnlineExpoGD>(m, "OnlineExpoGD",
+  py::class_<OnlineExpoGD, OnlineParamLearning, PyOnlineExpoGD>(m, "ExpoGD",
       "Exponentiated stochastic gradient descent (EGD) online learner")
     .def(py::init<>(), "Constructs an EGD learner with default parameters")
     .def(py::init<double, double, double>(), py::arg("stop_thred") = 1e-3, py::arg("lrate") = 1e-1,
@@ -82,7 +82,7 @@ void bind_online_sma(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineSMA, OnlineParamLearning, PyOnlineSMA>(m, "OnlineSMA", "Stochastic sequential "
+  py::class_<OnlineSMA, OnlineParamLearning, PyOnlineSMA>(m, "SMA", "Stochastic sequential "
       "monomial minimization algorithm (SMA) online learner")
     .def(py::init<>(), "Constructs an SMA learner with default parameters")
     .def(py::init<double, double, double>(), py::arg("stop_thred") = 1e-3, py::arg("lrate") = 1e-1,
@@ -100,7 +100,7 @@ void bind_online_em(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineExpectMax, OnlineParamLearning, PyOnlineExpectMax>(m, "OnlineExpectMax",
+  py::class_<OnlineExpectMax, OnlineParamLearning, PyOnlineExpectMax>(m, "ExpectMax",
       "Expectation maximization (EM) online learner")
     .def(py::init<>(), "Constructs an EM learner with default parameters")
     .def(py::init<double, double>(), py::arg("stop_thred") = 1e-4, py::arg("lap_lambda") = 1.0,
@@ -117,7 +117,7 @@ void bind_online_cvb(pybind11::module &m){
     }
   };
 
-  py::class_<OnlineCollapsedVB, OnlineParamLearning, PyOnlineCollapsedVB>(m, "OnlineCollapsedVB",
+  py::class_<OnlineCollapsedVB, OnlineParamLearning, PyOnlineCollapsedVB>(m, "CollapsedVB",
       "Collapsed variational bayes (CVB) online learner")
     .def(py::init<>(), "Constructs a CVB learner with default parameters")
     .def(py::init<double, double, double, uint>(), py::arg("stop_thred") = 1e-3,
@@ -135,7 +135,7 @@ void bind_online_adf(pybind11::module &m){
     }
   };
 
-  py::class_<OnlineADF, OnlineParamLearning, PyOnlineADF>(m, "OnlineADF", "Assumed-density "
+  py::class_<OnlineADF, OnlineParamLearning, PyOnlineADF>(m, "ADF", "Assumed-density "
       "filtering (ADF) online learner")
     .def(py::init<>(), "Constructs an ADF learner with default parameters")
     .def(py::init<double, double>(), py::arg("stop_thred") = 1e-3, py::arg("prior_scale") = 1e2,
@@ -153,7 +153,7 @@ void bind_online_bmm(pybind11::module &m){
       }
   };
 
-  py::class_<OnlineBMM, OnlineParamLearning, PyOnlineBMM>(m, "OnlineBMM", "Bayesian moment "
+  py::class_<OnlineBMM, OnlineParamLearning, PyOnlineBMM>(m, "BMM", "Bayesian moment "
       "matching (BMM) online learner")
     .def(py::init<>(), "Constructs a BMM learner with default parameters")
     .def(py::init<double, double>(), py::arg("stop_thred") = 1e-3, py::arg("prior_scale") = 1e2,

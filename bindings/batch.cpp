@@ -85,7 +85,8 @@ void bind_batch_projgd(pybind11::module &m) {
       }
   };
 
-  py::class_<ProjectedGD, BatchParamLearning, PyProjectedGD>(m, "Projected gradient descent (PGD) batch learner")
+  py::class_<ProjectedGD, BatchParamLearning, PyProjectedGD>(m, "ProjectedGD", "Projected "
+      "gradient descent (PGD) batch learner")
     .def(py::init<>(), "Constructs a PGD learner with default parameters")
     .def(py::init<int, double, double, double, double, bool, double, uint>(),
         py::arg("num_iters") = 50, py::arg("proj_eps") = 1e-2, py::arg("stop_thred") = 1e-3,
@@ -105,8 +106,8 @@ void bind_batch_lbfgs(pybind11::module &m) {
     }
   };
 
-  py::class_<LBFGS, BatchParamLearning, PyLBFGS>(m, "Limited-memory Broyden-Fletcher-Goldfarb-Shanno "
-      "(L-BFGS) batch learner")
+  py::class_<LBFGS, BatchParamLearning, PyLBFGS>(m, "LBFGS", "Limited-memory "
+      "Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) batch learner")
     .def(py::init<>(), "Constructs an L-BFGS learner with default parameters")
     .def(py::init<int, double, double, double, double, uint>(), py::arg("num_iters") = 50,
         py::arg("proj_eps") = 1e-2, py::arg("stop_thred") = 1e-3, py::arg("lrate") = 1e-1,
@@ -126,7 +127,8 @@ void bind_batch_expgd(pybind11::module &m) {
       }
   };
 
-  py::class_<ExpoGD, BatchParamLearning, PyExpoGD>(m, "Exponentiated gradient descent (EGD) batch learner")
+  py::class_<ExpoGD, BatchParamLearning, PyExpoGD>(m, "ExpoGD", "Exponentiated gradient descent "
+      "(EGD) batch learner")
     .def(py::init<>(), "Constructs an EGD learner with default parameters")
     .def(py::init<int, double, double, double>(), py::arg("num_iters") = 50,
         py::arg("stop_thred") = 1e-3, py::arg("lrate") = 1e-1, py::arg("shrink_weight") = 8e-1,
@@ -145,7 +147,7 @@ void bind_batch_sma(pybind11::module &m) {
       }
   };
 
-  py::class_<SMA, BatchParamLearning, PySMA>(m, "Sequential monomial approximation (SMA) batch learner")
+  py::class_<SMA, BatchParamLearning, PySMA>(m, "SMA", "Sequential monomial approximation (SMA) batch learner")
     .def(py::init<>(), "Constructs an SMA learner with default parameters")
     .def(py::init<int, double, double, double>(), py::arg("num_iters") = 50,
         py::arg("stop_thred") = 1e-3, py::arg("lrate") = 1e-1, py::arg("shrink_weight") = 8e-1,

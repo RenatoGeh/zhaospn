@@ -42,7 +42,7 @@ void bind_stream_projgd(py::module &m) {
       }
   };
 
-  py::class_<StreamProjectedGD, StreamParamLearning, PyStreamProjectedGD>(m, "StreamProjectedGD",
+  py::class_<StreamProjectedGD, StreamParamLearning, PyStreamProjectedGD>(m, "ProjectedGD",
       "Projected gradient descent (PGD) stream learner")
     .def(py::init<>(), "Constructs a PGD learner with default parameters")
     .def(py::init<double, double>(), py::arg("proj_eps") = 1e-2, py::arg("lrate") = 1e-1,
@@ -59,7 +59,7 @@ void bind_stream_expgd(py::module &m) {
       }
   };
 
-  py::class_<StreamExpoGD, StreamParamLearning, PyStreamExpoGD>(m, "StreamExpoGD",
+  py::class_<StreamExpoGD, StreamParamLearning, PyStreamExpoGD>(m, "ExpoGD",
       "Exponentiated gradient descent (EGD) stream learner")
     .def(py::init<>(), "Constructs an EGD learner with default parameters")
     .def(py::init<double>(), py::arg("lrate") = 1e-1, "Constructs an EGD learner with given parameters");
@@ -75,7 +75,7 @@ void bind_stream_sma(py::module &m) {
       }
   };
 
-  py::class_<StreamSMA, StreamParamLearning, PyStreamSMA>(m, "StreamSMA", "Sequential onomial "
+  py::class_<StreamSMA, StreamParamLearning, PyStreamSMA>(m, "SMA", "Sequential onomial "
       "minimization algorithm (SMA) stream learner")
     .def(py::init<>(), "Constructs an SMA learner with default parameters")
     .def(py::init<double>(), py::arg("lrate") = 1e-1, "Constructs an SMA learner with given parameters");
@@ -91,7 +91,7 @@ void bind_stream_em(py::module &m) {
       }
   };
 
-  py::class_<StreamExpectMax, StreamParamLearning, PyStreamExpectMax>(m, "StreamExpectMax",
+  py::class_<StreamExpectMax, StreamParamLearning, PyStreamExpectMax>(m, "ExpectMax",
       "Expectation maximization (EM), equivalent to concave-convex procedure (CCCP), stream learner")
     .def(py::init<>(), "Constructs an EM learner with default parameters")
     .def(py::init<double>(), py::arg("lrate") = 1.0, "Constructs an EM learner with given parameters");
