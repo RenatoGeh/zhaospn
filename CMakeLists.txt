@@ -6,7 +6,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 ## Executable for structure learning algorithms
 set(SOURCE_FILES_STRUCTURE main.cpp src/SPNNode.cpp src/SPNNode.h src/utils.h src/utils.cpp
-        src/SPNetwork.cpp src/SPNetwork.h src/BatchParamLearning.cpp src/BatchParamLearning.h)
+        src/SPNetwork.cpp src/SPNetwork.h src/BatchParamLearning.cpp src/BatchParamLearning.h
+        src/OnlineParamLearning.cpp src/OnlineParamLearning.h src/StreamParamLearning.cpp
+        src/StreamParamLearning.h)
 
 # BOOST support
 find_package(Boost 1.55.0 COMPONENTS system filesystem thread program_options REQUIRED)
