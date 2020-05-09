@@ -19,7 +19,7 @@ void bind_online_base(pybind11::module &m){
       using OnlineParamLearning::OnlineParamLearning;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineParamLearning, fit, trains, valids, spn, num_iters, verbose);
       }
   };
@@ -40,7 +40,7 @@ void bind_online_projgd(pybind11::module &m){
       using OnlineProjectedGD::OnlineProjectedGD;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineProjectedGD, fit, trains, valids, spn, num_iters, verbose);
       }
   };
@@ -59,7 +59,7 @@ void bind_online_expgd(pybind11::module &m){
       using OnlineExpoGD::OnlineExpoGD;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineExpoGD, fit, trains, valids, spn, num_iters, verbose);
       }
   };
@@ -77,7 +77,7 @@ void bind_online_sma(pybind11::module &m){
       using OnlineSMA::OnlineSMA;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineSMA, fit, trains, valids, spn, num_iters, verbose);
       }
   };
@@ -95,7 +95,7 @@ void bind_online_em(pybind11::module &m){
       using OnlineExpectMax::OnlineExpectMax;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineExpectMax, fit, trains, valids, spn, num_iters, verbose);
       }
   };
@@ -112,7 +112,7 @@ void bind_online_cvb(pybind11::module &m){
     using OnlineCollapsedVB::OnlineCollapsedVB;
 
     void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-        SPNetwork &spn, int num_iters, bool verbose = false) override {
+        SPNetwork &spn, size_t num_iters, bool verbose = false) override {
       PYBIND11_OVERLOAD(void, OnlineCollapsedVB, fit, trains, valids, spn, num_iters, verbose);
     }
   };
@@ -130,7 +130,7 @@ void bind_online_adf(pybind11::module &m){
     using OnlineADF::OnlineADF;
 
     void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-        SPNetwork &spn, int num_iters, bool verbose = false) override {
+        SPNetwork &spn, size_t num_iters, bool verbose = false) override {
       PYBIND11_OVERLOAD(void, OnlineADF, fit, trains, valids, spn, num_iters, verbose);
     }
   };
@@ -148,7 +148,7 @@ void bind_online_bmm(pybind11::module &m){
       using OnlineBMM::OnlineBMM;
 
       void fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-          SPNetwork &spn, int num_iters, bool verbose = false) override {
+          SPNetwork &spn, size_t num_iters, bool verbose = false) override {
         PYBIND11_OVERLOAD(void, OnlineBMM, fit, trains, valids, spn, num_iters, verbose);
       }
   };

@@ -16,8 +16,11 @@
 #include <cassert>
 #include <unordered_map>
 #include <algorithm>
+#include <utility>
 
 #include <boost/math/constants/constants.hpp>
+
+#include "random.h"
 
 using fmath::log;
 using fmath::exp;
@@ -69,11 +72,27 @@ namespace SPN {
 
         void dr(double v) { dr_ = v; }
 
+        inline void add(SPNNode *child) {
+            add_child(child);
+            child->add_parent(this);
+        }
+
+        inline void add(const std::vector<SPNNode*> &children) {
+            add_children(children);
+            for (auto c : children) c->add_parent(this);
+        }
+
+        inline void remove(SPNNode *child) {
+            remove_child(child);
+            child->remove_parent(this);
+        }
+
         // Shared methods from SPNNode for SumNode, ProdNode and VarNode
         inline void add_child(SPNNode *child) {
             children_.push_back(child);
         }
 
+        // Deprecated
         inline void add_parent(SPNNode *parent) {
             parents_.push_back(parent);
         }
@@ -82,6 +101,7 @@ namespace SPN {
             children_.insert(children_.end(), childs.begin(), childs.end());
         }
 
+        // Deprecated
         inline void add_parents(const std::vector<SPNNode *> &parents) {
             parents_.insert(parents_.end(), parents.begin(), parents.end());
         }
@@ -99,6 +119,7 @@ namespace SPN {
                             children_.end());
         }
 
+        // Deprecated
         inline void remove_parent(SPNNode *parent) {
             parents_.erase(std::remove(parents_.begin(), parents_.end(), parent),
                            parents_.end());
@@ -125,6 +146,10 @@ namespace SPN {
         friend class SPNetwork;
 
     protected:
+        // Sample this node's underlying distribution. Assumes forward pass has already been
+        // computed.
+        virtual std::pair<int, double> sample(double) = 0;
+
         // For tracking each node in the SPN
         int id_ = -1;
         // DAG topology recording
@@ -190,11 +215,14 @@ namespace SPN {
             weights_.push_back(w);
             values_.push_back(0.0);
         }
-
+        //
         // Friend function for output
         friend std::ostream &operator<<(std::ostream &, const SumNode &);
 
         friend class SPNetwork;
+
+    protected:
+        std::pair<int, double> sample(double) override;
 
     private:
         // Avoid the underflow problem in computing the log-probability on a sum node
@@ -262,6 +290,10 @@ namespace SPN {
         friend std::ostream &operator<<(std::ostream &, const ProdNode &);
 
         friend class SPNetwork;
+
+    protected:
+        inline std::pair<int, double> sample(double) override { return {children_.size()+2, 0}; }
+
     };
 
 
@@ -306,7 +338,7 @@ namespace SPN {
         friend std::ostream &operator<<(std::ostream &, const VarNode &);
 
         friend class SPNetwork;
-    private:
+    protected:
         int var_index_;
     };
 
@@ -360,6 +392,11 @@ namespace SPN {
         friend std::ostream &operator<<(std::ostream &, const BinNode &);
 
         friend class SPNetwork;
+
+    protected:
+
+        inline std::pair<int, double> sample(double) override { return {-var_index_, var_value_}; }
+
     private:
         // Value of the point taken by the binary random variable, either 0 or 1.
         double var_value_;
@@ -386,6 +423,10 @@ namespace SPN {
 
         friend std::ostream &operator<<(std::ostream&, const TopNode&);
         friend class SPNetwork;
+
+    protected:
+
+        inline std::pair<int, double> sample(double) override { return {-var_index_, 0.0}; }
     };
 
     class BotNode : public VarNode {
@@ -409,6 +450,12 @@ namespace SPN {
 
         friend std::ostream &operator<<(std::ostream&, const BotNode&);
         friend class SPNetwork;
+
+    protected:
+
+        inline std::pair<int, double> sample(double) override {
+            return {-var_index_, -std::numeric_limits<double>::infinity()};
+        }
     };
 
     class BernoulliNode : public VarNode {
@@ -436,6 +483,12 @@ namespace SPN {
 
         friend std::ostream &operator<<(std::ostream&, const BernoulliNode&);
         friend class SPNetwork;
+
+    protected:
+
+        inline std::pair<int, double> sample(double) override {
+            return {-var_index_, p_ > (((double) rand()) / ((double) RAND_MAX)) ? 1.0 : 0.0};
+        }
 
     private:
         double p_;
@@ -501,6 +554,13 @@ namespace SPN {
         friend std::ostream &operator<<(std::ostream &, const NormalNode &);
 
         friend class SPNetwork;
+
+    protected:
+
+        inline std::pair<int, double> sample(double) override {
+            return {-var_index_, random::gaussian(var_mean_, var_var_)};
+        }
+
     private:
         double var_mean_;
         double var_var_;

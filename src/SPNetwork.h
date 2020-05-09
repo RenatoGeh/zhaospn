@@ -12,9 +12,6 @@
 #include <unordered_set>
 #include <cmath>
 
-using fmath::log;
-using fmath::exp;
-
 namespace SPN {
     class SPNetwork {
     public:
@@ -23,31 +20,31 @@ namespace SPN {
         virtual ~SPNetwork();
 
         // Getters
-        int size() const {
+        size_t size() const {
             return size_;
         }
 
-        int height() const {
+        size_t height() const {
             return height_;
         }
 
-        int num_nodes() const {
+        size_t num_nodes() const {
             return num_nodes_;
         }
 
-        int num_edges() const {
+        size_t num_edges() const {
             return num_edges_;
         }
 
-        int num_var_nodes() const {
+        size_t num_var_nodes() const {
             return num_var_nodes_;
         }
 
-        int num_sum_nodes() const {
+        size_t num_sum_nodes() const {
             return num_sum_nodes_;
         }
 
-        int num_prod_nodes() const {
+        size_t num_prod_nodes() const {
             return num_prod_nodes_;
         }
 
@@ -79,6 +76,12 @@ namespace SPN {
         // not.
         double EvalDiff(const std::vector<double> &input, const std::vector<bool> &mask);
 
+        // Samples from SPN.
+        std::vector<std::vector<double>> sample(const std::vector<std::vector<double>>&);
+
+        // Samples a single instance from SPN.
+        std::vector<double> sample(const std::vector<double>&);
+
         // Initialize the SPN, do the following tasks:
         // 1, Remove connected sum nodes and product nodes
         // 2, Compute statistics about the network topology
@@ -105,11 +108,18 @@ namespace SPN {
 
         void condense_(SPNNode *, std::unordered_set<SPNNode *> &);
 
+        void setup_parents_(void);
+
         void build_order_();
 
         void compute_statistics_();
 
         bool check_structure_();
+
+        void compute_bottom_up_(const std::vector<std::vector<double>> &inputs,
+            const std::vector<std::vector<bool>> &mask, double **outputs);
+
+        void sample_instance_(std::vector<double>&, const std::vector<bool>&);
 
         // Root handler of SPN
         SPNNode *root_ = nullptr;
@@ -123,14 +133,14 @@ namespace SPN {
         std::vector<VarNode *> dist_nodes_;
 
         // Network topology
-        int size_ = 0;
-        int height_ = 0;
+        size_t size_ = 0;
+        size_t height_ = 0;
 
-        int num_nodes_ = 0;
-        int num_edges_ = 0;
-        int num_var_nodes_ = 0;
-        int num_sum_nodes_ = 0;
-        int num_prod_nodes_ = 0;
+        size_t num_nodes_ = 0;
+        size_t num_edges_ = 0;
+        size_t num_var_nodes_ = 0;
+        size_t num_sum_nodes_ = 0;
+        size_t num_prod_nodes_ = 0;
 
         // Friend declaration for Algorithmic classes
         friend class ExpectMax;

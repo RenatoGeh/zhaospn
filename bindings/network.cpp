@@ -53,5 +53,11 @@ void bind_net_spnetwork(py::module &m) {
         "model parameters and initialize using random seed")
     .def("weight_projection", &SPNetwork::weight_projection, py::arg("smooth") = 0.0, "Project "
         "each nonlocally normalized SPN into an SPN with locally normalized weights")
-    .def("print", (void (SPNetwork::*)(void)) &SPNetwork::print, "Output the network to stdout");
+    .def("print", (void (SPNetwork::*)(void)) &SPNetwork::print, "Output the network to stdout")
+    .def("sample", (std::vector<double> (SPNetwork::*)(const std::vector<double>&)) &SPNetwork::sample,
+        py::arg("input"), "Sample an instantiation from this SPN's distribution, where NaNs are "
+        "replaced with a sample from the SPN")
+    .def("sample", (std::vector<std::vector<double>> (SPNetwork::*)(const std::vector<std::vector<double>>&))
+        &SPNetwork::sample, py::arg("inputs"), "Sample a dataset from this SPN's distribution, "
+        "where NaNs are replaced with a sample from the SPN");
 }

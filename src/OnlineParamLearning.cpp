@@ -15,7 +15,7 @@ namespace SPN {
     // the implementation reduces to step-wise EM.
     void OnlineExpectMax::fit(std::vector<std::vector<double>> &trains,
                               std::vector<std::vector<double>> &valids,
-                              SPN::SPNetwork &spn, int num_iters, bool verbose) {
+                              SPN::SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -128,7 +128,7 @@ namespace SPN {
     // Online learning of Sum-Product Networks using exponentiated gradient descent algorithm.
     void OnlineExpoGD::fit(std::vector<std::vector<double>> &trains,
                            std::vector<std::vector<double>> &valids,
-                           SPNetwork &spn, int num_iters, bool verbose) {
+                           SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -260,7 +260,7 @@ namespace SPN {
 
     void OnlineProjectedGD::fit(std::vector<std::vector<double>> &trains,
                                 std::vector<std::vector<double>> &valids,
-                                SPNetwork &spn, int num_iters, bool verbose) {
+                                SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -393,7 +393,7 @@ namespace SPN {
 
     void OnlineSMA::fit(std::vector<std::vector<double>> &trains,
                         std::vector<std::vector<double>> &valids,
-                        SPNetwork &spn, int num_iters, bool verbose) {
+                        SPNetwork &spn, size_t num_iters, bool verbose) {
         // Initialization of all the modle parameters.
         size_t num_var = trains[0].size();
         // Masks for inference.
@@ -522,7 +522,7 @@ namespace SPN {
 
     void OnlineCollapsedVB::fit(std::vector<std::vector<double>> &trains,
                                 std::vector<std::vector<double>> &valids,
-                                SPNetwork &spn, int num_iters, bool verbose) {
+                                SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -663,7 +663,7 @@ namespace SPN {
     }
 
     void OnlineADF::fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-                        SPNetwork &spn, int num_iters, bool verbose) {
+                        SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -793,7 +793,7 @@ namespace SPN {
     }
 
     void OnlineBMM::fit(std::vector<std::vector<double>> &trains, std::vector<std::vector<double>> &valids,
-                        SPNetwork &spn, int num_iters, bool verbose) {
+                        SPNetwork &spn, size_t num_iters, bool verbose) {
         // Random number generators.
         std::random_device rd;
         std::mt19937 g(rd());
@@ -813,7 +813,6 @@ namespace SPN {
         // Hyperparameters.
         double prior_scale = prior_scale_;
         double sum_alpha = 0.0;
-        double fudge_factor = 1e-2;
         for (SPNNode *pt : spn.top_down_order()) {
             auto sum_pt = dynamic_cast<SumNode*>(pt);
             if (sum_pt) {

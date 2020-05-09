@@ -3,23 +3,56 @@
 //
 #include "SPNetwork.h"
 
+#include <cstdio>
+#include <cmath>
+
 #include <set>
 #include <stack>
 #include <queue>
 #include <random>
 
+#include "mmath.h"
+
 namespace SPN {
     // Constructor of SPN
     SPNetwork::SPNetwork(SPNNode *root) {
         root_ = root;
+        init();
     }
 
     // Destructor of SPN
     SPNetwork::~SPNetwork() {
-        // Delete all the nodes
-        bfs_traverse([](SPNNode *node) {
-            delete node;
-        });
+        // Let pybind11 destroy and garbage collect everything.
+
+        //std::stack<SPNNode*> T, K;
+        //std::vector<bool> V(num_nodes_);
+        //T.push(root_);
+        //K.push(root_);
+        //while (!T.empty()) {
+            //SPNNode *N = T.top();
+            //T.pop();
+            //V[N->id_] = true;
+            //for (auto C : N->children_)
+                //if (!V[C->id_]) {
+                    //T.push(C);
+                    //K.push(C);
+                //}
+        //}
+        //while (!K.empty()) {
+            //SPNNode *N = K.top();
+            //K.pop();
+            //for (auto C : N->children_) {
+                //C->parents_.clear();
+                //delete C;
+            //}
+            //N->children_.clear();
+        //}
+        //root_ = nullptr;
+        //V.clear();
+        //id2node_.clear();
+        //forward_order_.clear();
+        //backward_order_.clear();
+        //dist_nodes_.clear();
     }
 
     double SPNetwork::inference(const std::vector<double> &input, bool verbose) {
@@ -30,12 +63,12 @@ namespace SPN {
     }
 
     // Batch mode method for inference
-    std::vector<double> SPNetwork::inference(const std::vector<std::vector<double>> &inputs, bool verbose) {
+    std::vector<double> SPNetwork::inference(const std::vector<std::vector<double>> &inputs, bool) {
         size_t num_inputs = inputs.size();
         std::vector<bool> mask(inputs[0].size(), false);
         std::vector<double> probs;
         for (size_t n = 0; n < num_inputs; ++n) {
-            probs.push_back(exp(EvalDiff(inputs[n], mask)));
+            probs.push_back(fmath::exp(EvalDiff(inputs[n], mask)));
         }
         return probs;
     }
@@ -47,7 +80,7 @@ namespace SPN {
         return logps[0];
     }
 
-    std::vector<double> SPNetwork::logprob(const std::vector<std::vector<double>> &inputs, bool verbose) {
+    std::vector<double> SPNetwork::logprob(const std::vector<std::vector<double>> &inputs, bool) {
         size_t num_inputs = inputs.size();
         std::vector<bool> mask(inputs[0].size(), false);
         std::vector<double> logps;
@@ -67,6 +100,24 @@ namespace SPN {
         // Check structure
         assert(check_structure_());
         build_order_();
+    }
+
+    void SPNetwork::setup_parents_(void) {
+        std::queue<SPNNode*> Q;
+        std::unordered_set<SPNNode*> visited;
+        Q.push(root_);
+        visited.insert(root_);
+        while (!Q.empty()) {
+            SPNNode *N = Q.front();
+            Q.pop();
+            for (auto C : N->children_)
+                if (visited.find(C) == visited.end()) {
+                    //C->parents_.push_back(N);
+                    C->add_parent(N);
+                    Q.push(C);
+                    visited.insert(C);
+                }
+        }
     }
 
     void SPNetwork::build_order_() {
@@ -228,7 +279,7 @@ namespace SPN {
 
         int id = 0;
         std::unordered_set<SPNNode *> visited;
-        std::queue<std::pair<SPNNode *, int>> forward;
+        std::queue<std::pair<SPNNode *, size_t>> forward;
         visited.insert(root_);
         forward.push(std::make_pair(root_, 0));
         switch (root_->type()) {
@@ -355,10 +406,10 @@ namespace SPN {
                     }
                 }
                 for (size_t k = 0; k < pt->num_children(); ++k)
-                    ssz += ((SumNode*)pt)->weights_[k] * exp(pt->children_[k]->fr_ - max_logp) + smooth;
+                    ssz += ((SumNode*)pt)->weights_[k] * fmath::exp(pt->children_[k]->fr_ - max_logp) + smooth;
                 // Local weight normalization.
                 for (size_t k = 0; k < pt->num_children(); ++k) {
-                    sz = ((SumNode*)pt)->weights_[k] * exp(pt->children_[k]->fr_ - max_logp) + smooth;
+                    sz = ((SumNode*)pt)->weights_[k] * fmath::exp(pt->children_[k]->fr_ - max_logp) + smooth;
                     ((SumNode *) pt)->set_weight(k, sz / ssz);
                 }
             }
@@ -391,8 +442,8 @@ namespace SPN {
                 } else {
                     sum_exp = 0.0;
                     for (size_t j = 0; j < pt->children_.size(); ++j)
-                        sum_exp += ((SumNode *) pt)->weights_[j] * exp(pt->children_[j]->fr_ - max_logp);
-                    pt->fr_ = max_logp + log(sum_exp);
+                        sum_exp += ((SumNode *) pt)->weights_[j] * fmath::exp(pt->children_[j]->fr_ - max_logp);
+                    pt->fr_ = max_logp + fmath::log(sum_exp);
                 }
             } else if (pt->type() == SPNNodeType::PRODNODE) {
                 pt->fr_ = 0.0;
@@ -411,7 +462,7 @@ namespace SPN {
             for (SPNNode *parent : pt->parents_) {
                 // Find the index of current node in his parent.
                 cindex = -1;
-                for (int j = 0; j < parent->children_.size(); ++j) {
+                for (size_t j = 0; j < parent->children_.size(); ++j) {
                     if (pt == parent->children_[j]) {
                         cindex = j;
                         break;
@@ -419,7 +470,7 @@ namespace SPN {
                 }
                 // Determine the shifting size.
                 if (parent->type() == SPNNodeType::SUMNODE) {
-                    tmp_val = parent->dr_ + log(((SumNode *) parent)->weights_[cindex]);
+                    tmp_val = parent->dr_ + fmath::log(((SumNode *) parent)->weights_[cindex]);
                     if (tmp_val > max_logp) {
                         max_logp = tmp_val;
                     }
@@ -434,7 +485,7 @@ namespace SPN {
             for (SPNNode *parent : pt->parents_) {
                 // Find the index of current node in his parent.
                 cindex = -1;
-                for (int j = 0; j < parent->children_.size(); ++j) {
+                for (size_t j = 0; j < parent->children_.size(); ++j) {
                     if (pt == parent->children_[j]) {
                         cindex = j;
                         break;
@@ -442,15 +493,115 @@ namespace SPN {
                 }
                 // Determine the shifting size.
                 if (parent->type() == SPNNodeType::SUMNODE) {
-                    tmp_val = parent->dr_ + log(((SumNode *) parent)->weights_[cindex]);
-                    pt->dr_ += exp(tmp_val - max_logp);
+                    tmp_val = parent->dr_ + fmath::log(((SumNode *) parent)->weights_[cindex]);
+                    pt->dr_ += fmath::exp(tmp_val - max_logp);
                 } else if (parent->type() == SPNNodeType::PRODNODE) {
                     tmp_val = parent->dr_ + parent->fr_ - pt->fr_;
-                    pt->dr_ += exp(tmp_val - max_logp);
+                    pt->dr_ += fmath::exp(tmp_val - max_logp);
                 }
             }
-            pt->dr_ = log(pt->dr_) + max_logp;
+            pt->dr_ = fmath::log(pt->dr_) + max_logp;
         }
         return root_->fr_;
+    }
+
+    void SPNetwork::compute_bottom_up_(const std::vector<std::vector<double>> &inputs,
+        const std::vector<std::vector<bool>> &mask, double** outputs) {
+        int var_index;
+        double max_logp, sum_exp;
+        int n = inputs.size();
+        assert(inputs.size() == mask.size());
+        for (VarNode *pt : dist_nodes_) {
+            int j = pt->id_;
+            var_index = pt->var_index();
+            for (int i = 0; i < n; ++i)
+                outputs[i][j] = mask[i][var_index] ? 0.0 : pt->log_prob(inputs[i][var_index]);
+        }
+        for (SPNNode *pt : forward_order_) {
+            for (int i = 0; i < n; ++i) {
+                double *cf = outputs[i];
+                if (pt->type() == SPNNodeType::SUMNODE) {
+                    int n = pt->id_;
+                    max_logp = -std::numeric_limits<double>::infinity();
+                    for (size_t j = 0; j < pt->children_.size(); ++j) {
+                        double f = cf[pt->children_[j]->id_];
+                        if (f > max_logp)
+                            max_logp = f;
+                    }
+                    if (max_logp == -std::numeric_limits<double>::infinity()) {
+                        cf[n] = -std::numeric_limits<double>::infinity();
+                    } else {
+                        sum_exp = 0.0;
+                        for (size_t j = 0; j < pt->children_.size(); ++j) {
+                            double f = cf[pt->children_[j]->id_];
+                            sum_exp += dynamic_cast<SumNode*>(pt)->weights_[j] * fmath::exp(f - max_logp);
+                        }
+                        cf[n] = max_logp + fmath::log(sum_exp);
+                    }
+                } else if (pt->type() == SPNNodeType::PRODNODE) {
+                    double f = 0.0;
+                    for (size_t j = 0; j < pt->children_.size(); ++j)
+                        f += cf[pt->children_[j]->id_];
+                    cf[n] = f;
+                }
+            }
+        }
+    }
+
+    void construct_mask_(const std::vector<std::vector<double>>& input,
+        std::vector<std::vector<bool>> &mask) {
+        size_t n = input.size(), m = input[0].size();
+        for (size_t i = 0; i < n; ++i)
+          for (size_t j = 0; j < m; ++j)
+              mask[i][j] = std::isnan(input[i][j]);
+    }
+
+    std::vector<double> SPNetwork::sample(const std::vector<double>& input) {
+        std::vector<std::vector<double>> inputs;
+        inputs.push_back(input);
+        return sample(inputs)[0];
+    }
+
+    std::vector<std::vector<double>> SPNetwork::sample(const std::vector<std::vector<double>> &inputs) {
+        size_t n = inputs.size();
+        std::vector<std::vector<double>> samples(inputs);
+        std::vector<std::vector<bool>> mask(n, std::vector<bool>(inputs[0].size(), false));
+        std::queue<SPNNode*> Q;
+        std::vector<bool> visited(num_nodes_, false);
+        size_t s = n*sizeof(double);
+        new_matrix(f, double, s, num_nodes_);
+
+        construct_mask_(inputs, mask);
+        compute_bottom_up_(inputs, mask, f);
+
+        for (size_t i = 0; i < n; ++i) {
+            Q.push(root_);
+            while (!Q.empty()) {
+                SPNNode *N = Q.front();
+                Q.pop();
+                visited[N->id_] = true;
+                double fr = f[i][N->id_];
+                std::pair<int, double> p = N->sample(fr);
+                if (p.first > 0) { /* Either sum or product. */
+                    if ((size_t) p.first == N->children_.size() + 2) {
+                        for (SPNNode *C : N->children_)
+                            if (!visited[C->id_]) Q.push(C);
+                    } else {
+                        SPNNode *C = N->children_[p.first - 1];
+                        if (!visited[C->id_]) Q.push(C);
+                    }
+                } else { /* Leaf node. Sample variable. */
+                    int c = -p.first;
+                    assert(c >= 0);
+                    if (mask[i][c])
+                        samples[i][c] = p.second;
+                }
+            }
+            for (auto v : visited) v = false;
+        }
+
+        del_matrix(f, n);
+
+        return samples;
     }
 }

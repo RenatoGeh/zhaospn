@@ -7,7 +7,7 @@
 #include <random>
 
 namespace SPN {
-    void StreamProjectedGD::fit(std::vector<double> &train, SPNetwork &spn, bool verbose) {
+    void StreamProjectedGD::fit(std::vector<double> &train, SPNetwork &spn, bool) {
         // Masks for inference.
         std::vector<bool> mask_false(train.size(), false);
         std::vector<bool> mask_true(train.size(), true);
@@ -49,7 +49,7 @@ namespace SPN {
         }
     }
 
-    void StreamExpoGD::fit(std::vector<double> &train, SPNetwork &spn, bool verbose) {
+    void StreamExpoGD::fit(std::vector<double> &train, SPNetwork &spn, bool) {
         // Masks for inference.
         std::vector<bool> mask_false(train.size(), false);
         std::vector<bool> mask_true(train.size(), true);
@@ -90,7 +90,7 @@ namespace SPN {
         }
     }
 
-    void StreamSMA::fit(std::vector<double> &train, SPNetwork &spn, bool verbose) {
+    void StreamSMA::fit(std::vector<double> &train, SPNetwork &spn, bool) {
         // Masks for inference.
         std::vector<bool> mask_false(train.size(), false);
         std::vector<bool> mask_true(train.size(), true);
@@ -133,7 +133,7 @@ namespace SPN {
         }
     }
 
-    void StreamExpectMax::fit(std::vector<double> &train, SPNetwork &spn, bool verbose) {
+    void StreamExpectMax::fit(std::vector<double> &train, SPNetwork &spn, bool) {
         // Masks for inference.
         std::vector<bool> mask_false(train.size(), false);
         std::vector<bool> mask_true(train.size(), true);

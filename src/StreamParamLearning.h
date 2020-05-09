@@ -20,7 +20,7 @@ namespace SPN {
             return algo_name_;
         }
         // Streaming parameter learning algorithms to be implemented by subclasses.
-        virtual void fit(std::vector<double> &train, SPNetwork &spn, bool verbose = false) { };
+        virtual void fit(std::vector<double>&, SPNetwork&, bool = false) { };
 
     protected:
         std::string algo_name_ = "AbstractStreamParamLearning";
@@ -41,8 +41,8 @@ namespace SPN {
         void fit(std::vector<double> &train, SPNetwork &spn, bool verbose = false) override;
 
     protected:
-        double lrate_;
         double proj_eps_;
+        double lrate_;
     };
 
     // Streaming exponentiated gradient descent for leanring the parameters of Sum-Product Networks.

@@ -3,7 +3,12 @@
 //
 #include "SPNNode.h"
 
+#include <cassert>
 #include <sstream>
+#include <limits>
+#include <utility>
+
+#include "random.h"
 
 namespace SPN {
     // Friend functions for output
@@ -182,6 +187,23 @@ namespace SPN {
         }
         out << "],distribution,[p:[" << p_ << "]]";
         return out.str();
+    }
+
+    std::pair<int, double> SumNode::sample(double fr) {
+        assert(weights_.size() == children_.size());
+        int imax = -1, n = weights_.size();
+        double *pr = new double[n*sizeof(double)];
+        double vmax = -std::numeric_limits<double>::infinity();
+        for (int i = 0; i < n; ++i) {
+            double k = pr[i];
+            pr[i] = fr + weights_[i] + random::gumbel();
+            if (k > vmax) {
+                vmax = k;
+                imax = i;
+            }
+        }
+        delete[] pr;
+        return {imax+1, vmax};
     }
 }
 

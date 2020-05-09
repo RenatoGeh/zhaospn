@@ -17,9 +17,9 @@ namespace SPN {
         virtual ~OnlineParamLearning() = default;
 
         // Online Learning algorithm to be implemented by subclasses.
-        virtual void fit(std::vector<std::vector<double>> &trains,
-                         std::vector<std::vector<double>> &valids,
-                         SPNetwork &spn, int num_iters, bool verbose = false) { };
+        virtual void fit(std::vector<std::vector<double>> &,
+                         std::vector<std::vector<double>> &,
+                         SPNetwork&, size_t, bool = false) { };
 
         std::string algo_name() const {
             return algo_name_;
@@ -48,7 +48,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids,
-                 SPNetwork &spn, int num_iters=1, bool verbose = false) override;
+                 SPNetwork &spn, size_t num_iters=1, bool verbose = false) override;
 
     protected:
         double lrate_;
@@ -66,7 +66,7 @@ namespace SPN {
         }
 
         OnlineExpoGD(double stop_thred, double lrate, double shrink_weight) :
-                stop_thred_(stop_thred), lrate_(lrate), shrink_weight_(shrink_weight) {
+                lrate_(lrate), shrink_weight_(shrink_weight), stop_thred_(stop_thred) {
             algo_name_ = "OnlineExpoGD";
         }
 
@@ -74,7 +74,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids,
-                 SPNetwork &spn, int num_iters=1, bool verbose = false) override;
+                 SPNetwork &spn, size_t num_iters=1, bool verbose = false) override;
 
     protected:
         double lrate_;
@@ -90,7 +90,7 @@ namespace SPN {
         }
 
         OnlineSMA(double stop_thred, double lrate, double shrink_weight) :
-                stop_thred_(stop_thred), lrate_(lrate), shrink_weight_(shrink_weight) {
+                lrate_(lrate), shrink_weight_(shrink_weight), stop_thred_(stop_thred) {
             algo_name_ = "OnlineSMA";
         }
 
@@ -98,7 +98,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids,
-                 SPNetwork &spn, int num_iters=1, bool verbose = false) override;
+                 SPNetwork &spn, size_t num_iters=1, bool verbose = false) override;
 
     private:
         double lrate_;
@@ -121,7 +121,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids,
-                 SPNetwork &spn, int num_iters=1, bool verbose=false) override;
+                 SPNetwork &spn, size_t num_iters=1, bool verbose=false) override;
 
     protected:
         double stop_thred_;
@@ -145,11 +145,11 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids, SPNetwork &spn,
-                 int num_iters=1, bool verbose=false) override;
+                 size_t num_iters=1, bool verbose=false) override;
 
     private:
-        double lrate_;
         double stop_thred_;
+        double lrate_;
         double prior_scale_;
         uint seed_;
     };
@@ -169,7 +169,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids, SPNetwork &spn,
-                 int num_iters=1, bool verbose=false) override;
+                 size_t num_iters=1, bool verbose=false) override;
 
     private:
         double stop_thred_;
@@ -191,7 +191,7 @@ namespace SPN {
 
         void fit(std::vector<std::vector<double>> &trains,
                  std::vector<std::vector<double>> &valids, SPNetwork &spn,
-                 int num_iters=1, bool verbose=false) override;
+                 size_t num_iters=1, bool verbose=false) override;
 
     private:
         double stop_thred_;

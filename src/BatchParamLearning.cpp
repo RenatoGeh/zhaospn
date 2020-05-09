@@ -703,7 +703,7 @@ namespace SPN {
                 prev_grads.insert({pt, std::vector<double>(pt->num_children(), 0.0)});
                 prev_param.insert({pt, std::vector<double>(pt->num_children(), 0.0)});
                 // Store gradient vectors and parameter vectors in the history window.
-                for (int i = 0; i < history_window_; ++i) {
+                for (size_t i = 0; i < history_window_; ++i) {
                     history_param[i].insert({pt, std::vector<double>(pt->num_children())});
                     history_grads[i].insert({pt, std::vector<double>(pt->num_children())});
                 }
