@@ -55,6 +55,14 @@ namespace SPN {
         //dist_nodes_.clear();
     }
 
+    void construct_mask_(const std::vector<std::vector<double>>& input,
+        std::vector<std::vector<bool>> &mask) {
+        size_t n = input.size(), m = input[0].size();
+        for (size_t i = 0; i < n; ++i)
+          for (size_t j = 0; j < m; ++j)
+              mask[i][j] = std::isnan(input[i][j]);
+    }
+
     double SPNetwork::inference(const std::vector<double> &input, bool verbose) {
         std::vector<std::vector<double>> inputs;
         inputs.push_back(input);
@@ -65,10 +73,11 @@ namespace SPN {
     // Batch mode method for inference
     std::vector<double> SPNetwork::inference(const std::vector<std::vector<double>> &inputs, bool) {
         size_t num_inputs = inputs.size();
-        std::vector<bool> mask(inputs[0].size(), false);
+        std::vector<std::vector<bool>> mask(num_inputs, std::vector<bool>(inputs[0].size(), false));
         std::vector<double> probs;
+        construct_mask_(inputs, mask);
         for (size_t n = 0; n < num_inputs; ++n) {
-            probs.push_back(fmath::exp(EvalDiff(inputs[n], mask)));
+            probs.push_back(fmath::exp(EvalDiff(inputs[n], mask[n])));
         }
         return probs;
     }
@@ -82,10 +91,11 @@ namespace SPN {
 
     std::vector<double> SPNetwork::logprob(const std::vector<std::vector<double>> &inputs, bool) {
         size_t num_inputs = inputs.size();
-        std::vector<bool> mask(inputs[0].size(), false);
+        std::vector<std::vector<bool>> mask(num_inputs, std::vector<bool>(inputs[0].size(), false));
         std::vector<double> logps;
+        construct_mask_(inputs, mask);
         for (size_t n = 0; n < num_inputs; ++n) {
-            logps.push_back(EvalDiff(inputs[n], mask));
+            logps.push_back(EvalDiff(inputs[n], mask[n]));
         }
         return logps;
     }
@@ -546,14 +556,6 @@ namespace SPN {
                 }
             }
         }
-    }
-
-    void construct_mask_(const std::vector<std::vector<double>>& input,
-        std::vector<std::vector<bool>> &mask) {
-        size_t n = input.size(), m = input[0].size();
-        for (size_t i = 0; i < n; ++i)
-          for (size_t j = 0; j < m; ++j)
-              mask[i][j] = std::isnan(input[i][j]);
     }
 
     std::vector<double> SPNetwork::sample(const std::vector<double>& input) {

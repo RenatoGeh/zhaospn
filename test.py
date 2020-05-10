@@ -16,17 +16,25 @@ def add_children(P, C, W = None):
     if h: P.add_weight(W[i])
   return P
 
-def example_SPN():
+def example_SPN(discrete = False):
+  C = [(
+    zhaospn.spn.BernoulliNode(0, 0, 0.3),
+    zhaospn.spn.BernoulliNode(1, 1, 0.5)
+  ), (
+    zhaospn.spn.BernoulliNode(3, 1, 0.8),
+    zhaospn.spn.BernoulliNode(4, 0, 0.4)
+  )] if discrete else [(
+    zhaospn.spn.NormalNode(0, 0, 0, 1.0),
+    zhaospn.spn.NormalNode(1, 1, 1, 0.5)
+  ), (
+    zhaospn.spn.NormalNode(3, 1, 2, 0.3),
+    zhaospn.spn.NormalNode(4, 0, 2, 1.0)
+  )]
+
   S = zhaospn.spn.SPNetwork(
     add_children(zhaospn.spn.SumNode(6), [
-      add_children(zhaospn.spn.ProdNode(2), [
-        zhaospn.spn.NormalNode(0, 0, 0, 1.0),
-        zhaospn.spn.NormalNode(1, 1, 1, 0.5)
-      ]),
-      add_children(zhaospn.spn.ProdNode(5), [
-        zhaospn.spn.NormalNode(3, 1, 2, 0.3),
-        zhaospn.spn.NormalNode(4, 0, 2, 1.0)
-      ])
+      add_children(zhaospn.spn.ProdNode(2), C[0]),
+      add_children(zhaospn.spn.ProdNode(5), C[1])
     ], [0.3, 0.7])
   )
   return S
@@ -44,30 +52,21 @@ def get_learners():
     get_concrete_learners(zhaospn.stream)
   ]
 
-def gen_dataset(n):
+def gen_dataset(n, missing = False):
   D = []
   for i in range(n):
     p = random.random()
-    D = np.append(D, np.random.choice([random.random(), np.nan], size=2, p=[p, 1.0-p]))
+    x = [random.random(), np.nan if missing else random.random()]
+    D = np.append(D, np.random.choice(x, size=2, p=[p, 1.0-p]))
   return D.reshape(n, 2)
 
 def split_data(D, p):
   k = int(len(D)*p)
   return D[:k], D[k:]
 
-def main():
+def test_learners():
+  D = split_data(gen_dataset(200), 0.7)
   S = example_SPN()
-
-  S.weight_projection()
-  S.print()
-
-  D = gen_dataset(50)
-  print('Sampling {} instantiations:'.format(len(D)))
-  D = S.sample(D)
-  print(D)
-
-  D = split_data(D, 0.7)
-
   L = get_learners()
   for T in L:
     t = T[0]
@@ -83,6 +82,18 @@ def main():
         for x in D[0]: l.fit(x, S, True)
       S.print()
       print('---')
+
+def test_sampling():
+  D = gen_dataset(10000, missing = True)
+  S = example_SPN(discrete = True)
+  r = np.array(S.sample(D))
+  sample_p = r.sum(axis=0)/r.sum()
+  true_p = np.array(S.inference([[0, 0], [0, 1], [1, 0], [1, 1]]))
+  true_p = np.array((true_p[:2].sum(), true_p[2:].sum()))
+  print("True probability: {}\nSample probability: {}".format(true_p, sample_p))
+
+def main():
+  test_sampling()
 
 if __name__ == '__main__':
   main()

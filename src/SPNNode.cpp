@@ -176,7 +176,7 @@ namespace SPN {
         if (num_parents > 0) {
             for (size_t i = 0; i < num_parents - 1; ++i)
                 out << parents_[i]->id() << ",";
-            out << children_[num_parents - 1]->id();
+            out << parents_[num_parents - 1]->id();
         }
         out << "],scope:[";
         size_t size_scope = scope_.size();

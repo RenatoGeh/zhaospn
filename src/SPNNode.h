@@ -477,9 +477,9 @@ namespace SPN {
 
         inline void set_p(double p) { p_ = p; }
 
-        double prob(double x) const override { return x == 0.0 ? p_ : 1.0 - p_; }
+        double prob(double x) const override { return fabs(x) < 1e-6 ? p_ : 1.0 - p_; }
 
-        double log_prob(double x) const override { return x == 0.0 ? log(p_) : 1.0 - log(p_); }
+        double log_prob(double x) const override { return fabs(x) < 1e-6 ? log(p_) : log(1.0 - p_); }
 
         friend std::ostream &operator<<(std::ostream&, const BernoulliNode&);
         friend class SPNetwork;
