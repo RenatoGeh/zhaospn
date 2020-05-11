@@ -487,7 +487,7 @@ namespace SPN {
     protected:
 
         inline std::pair<int, double> sample(double) override {
-            return {-var_index_, p_ > (((double) rand()) / ((double) RAND_MAX)) ? 1.0 : 0.0};
+            return {-var_index_, (double) (p_ < (((double) rand()) / RAND_MAX))};
         }
 
     private:

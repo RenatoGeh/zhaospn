@@ -52,12 +52,17 @@ def get_learners():
     get_concrete_learners(zhaospn.stream)
   ]
 
-def gen_dataset(n, missing = False):
+def gen_dataset(n, missing = False, discrete = False):
   D = []
   for i in range(n):
-    p = random.random()
-    x = [random.random(), np.nan if missing else random.random()]
-    D = np.append(D, np.random.choice(x, size=2, p=[p, 1.0-p]))
+    if discrete:
+      c = ([0.0, 1.0, np.nan] if missing else [0.0, 1.0], (1/3, 1/3, 1/3))
+    else:
+      c = ([random.random(), np.nan if missing else random.random()], (0.5, 0.5))
+    while True:
+      x = np.random.choice(c[0], size=2, p=c[1])
+      if np.isnan(x).any(): break
+    D = np.append(D, x)
   return D.reshape(n, 2)
 
 def split_data(D, p):
@@ -84,12 +89,14 @@ def test_learners():
       print('---')
 
 def test_sampling():
-  D = gen_dataset(10000, missing = True)
+  # D = gen_dataset(10000, missing = True, discrete = True)
+  D = np.full((1000000, 2), fill_value=np.nan, dtype=np.float)
   S = example_SPN(discrete = True)
   r = np.array(S.sample(D))
-  sample_p = r.sum(axis=0)/r.sum()
-  true_p = np.array(S.inference([[0, 0], [0, 1], [1, 0], [1, 1]]))
-  true_p = np.array((true_p[:2].sum(), true_p[2:].sum()))
+  insts, sample_p = np.unique(r, axis=0, return_counts=True)
+  sample_p = sample_p/sample_p.sum()
+  true_p = np.array(S.inference(insts))
+  # true_p = np.array((true_p[:2].sum(), true_p[2:].sum()))
   print("True probability: {}\nSample probability: {}".format(true_p, sample_p))
 
 def main():

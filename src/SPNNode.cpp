@@ -190,19 +190,16 @@ namespace SPN {
     }
 
     std::pair<int, double> SumNode::sample(double fr) {
-        assert(weights_.size() == children_.size());
-        int imax = -1, n = weights_.size();
-        double *pr = new double[n*sizeof(double)];
+        size_t n = weights_.size();
+        int imax = -1;
         double vmax = -std::numeric_limits<double>::infinity();
-        for (int i = 0; i < n; ++i) {
-            double k = pr[i];
-            pr[i] = fr + weights_[i] + random::gumbel();
+        for (size_t i = 0; i < n; ++i) {
+            double k = fr + weights_[i] + random::gumbel();
             if (k > vmax) {
                 vmax = k;
                 imax = i;
             }
         }
-        delete[] pr;
         return {imax+1, vmax};
     }
 }

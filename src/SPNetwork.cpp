@@ -529,30 +529,31 @@ namespace SPN {
         }
         for (SPNNode *pt : forward_order_) {
             for (int i = 0; i < n; ++i) {
+                int k = pt->id_;
+                size_t cs = pt->children_.size();
                 double *cf = outputs[i];
                 if (pt->type() == SPNNodeType::SUMNODE) {
-                    int n = pt->id_;
                     max_logp = -std::numeric_limits<double>::infinity();
-                    for (size_t j = 0; j < pt->children_.size(); ++j) {
+                    for (size_t j = 0; j < cs; ++j) {
                         double f = cf[pt->children_[j]->id_];
                         if (f > max_logp)
                             max_logp = f;
                     }
                     if (max_logp == -std::numeric_limits<double>::infinity()) {
-                        cf[n] = -std::numeric_limits<double>::infinity();
+                        cf[k] = -std::numeric_limits<double>::infinity();
                     } else {
                         sum_exp = 0.0;
-                        for (size_t j = 0; j < pt->children_.size(); ++j) {
+                        for (size_t j = 0; j < cs; ++j) {
                             double f = cf[pt->children_[j]->id_];
                             sum_exp += dynamic_cast<SumNode*>(pt)->weights_[j] * fmath::exp(f - max_logp);
                         }
-                        cf[n] = max_logp + fmath::log(sum_exp);
+                        cf[k] = max_logp + fmath::log(sum_exp);
                     }
                 } else if (pt->type() == SPNNodeType::PRODNODE) {
                     double f = 0.0;
-                    for (size_t j = 0; j < pt->children_.size(); ++j)
+                    for (size_t j = 0; j < cs; ++j)
                         f += cf[pt->children_[j]->id_];
-                    cf[n] = f;
+                    cf[k] = f;
                 }
             }
         }
@@ -570,8 +571,7 @@ namespace SPN {
         std::vector<std::vector<bool>> mask(n, std::vector<bool>(inputs[0].size(), false));
         std::queue<SPNNode*> Q;
         std::vector<bool> visited(num_nodes_, false);
-        size_t s = n*sizeof(double);
-        new_matrix(f, double, s, num_nodes_);
+        new_matrix(f, double, n, num_nodes_);
 
         construct_mask_(inputs, mask);
         compute_bottom_up_(inputs, mask, f);
@@ -594,9 +594,7 @@ namespace SPN {
                     }
                 } else { /* Leaf node. Sample variable. */
                     int c = -p.first;
-                    assert(c >= 0);
-                    if (mask[i][c])
-                        samples[i][c] = p.second;
+                    if (mask[i][c]) samples[i][c] = p.second;
                 }
             }
             for (auto v : visited) v = false;
